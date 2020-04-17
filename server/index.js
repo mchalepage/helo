@@ -9,6 +9,22 @@ const app = express()
 
 app.use(express.json())
 
+app.post('/api/auth/register', ctrl.register)
+app.post('/api/auth/login', ctrl.login)
+app.post('/api/auth/logout', ctrl.logout)
+
+app.get('/api/posts/:userid', ctrl.getPosts)
+
+
+app.use(session({
+    resave: false,
+    saveUninitialized: true,
+    secret: SESSION_SECRET,
+    cookie: {
+        maxAge: 1000 * 60 * 60
+    }
+}))
+
 massive({
     connectionString: CONNECTION_STRING,
     ssl: {

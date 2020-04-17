@@ -1,21 +1,19 @@
 import React from 'react';
 import './App.css';
-import Auth from './Components/Auth/Auth'
-import Dashboard from './Components/Dashboard/Dashboard'
-import Form from './Components/Form/Form'
 import Nav from './Components/Nav/Nav'
-import Post from './Components/Post/Post'
+import routes from './routes'
+import store from './ducks/store'
+import {HashRouter} from 'react-router-dom'
+import {Provider} from 'react-redux'
 
 function App() {
   return (
-    <div className="App">
-      Who do you think you are? I am
-      <Nav />
-      <Auth />
-      <Dashboard />
-      <Form />
-      <Post />
-    </div>
+    // <Provider store={store}>
+      <HashRouter>
+        <Nav />
+        {routes}
+      </HashRouter>
+    //</Provider>
   );
 }
 
