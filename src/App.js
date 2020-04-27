@@ -8,7 +8,6 @@ import './App.css'
 function App(props) {
   return (
     <div className="App">
-      {props.isLoggedIn ? <Dashboard /> : <Auth />}
       {routes}
     </div>
   )
