@@ -1,8 +1,5 @@
 insert into users (
     username,
     password
-) values (
-    ${username},
-    ${password}
-)
-returning*;
+) values ($1, $2)
+returning id, username;

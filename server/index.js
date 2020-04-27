@@ -9,11 +9,12 @@ const app = express()
 
 app.use(express.json())
 
-app.post('/api/auth/register', ctrl.register)
-app.post('/api/auth/login', ctrl.login)
-app.post('/api/auth/logout', ctrl.logout)
+app.post('/auth/register', ctrl.register)
+app.post('/auth/login', ctrl.login)
+app.post('/auth/logout', ctrl.logout)
+app.get('/auth/user', ctrl.getUser)
 
-app.get('/api/posts/:userid', ctrl.getPosts)
+app.get('/api/posts/', ctrl.getPosts)
 
 
 app.use(session({

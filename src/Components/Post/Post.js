@@ -6,7 +6,7 @@ class Post extends Component {
     }
     render() {
         return (
-            <div>Post</div>
+            <div>Who do you think you are? I am.</div>
         )
     }
 }

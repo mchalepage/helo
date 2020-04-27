@@ -1,20 +1,19 @@
-import React from 'react';
-import './App.css';
-import Nav from './Components/Nav/Nav'
+import React from 'react'
+import Auth from './Components/Auth/Auth'
+import Dashboard from './Components/Dashboard/Dashboard'
 import routes from './routes'
-import store from './ducks/store'
-import {HashRouter} from 'react-router-dom'
-import {Provider} from 'react-redux'
+import { connect } from 'react-redux'
+import './App.css'
 
-function App() {
+function App(props) {
   return (
-    // <Provider store={store}>
-      <HashRouter>
-        <Nav />
-        {routes}
-      </HashRouter>
-    //</Provider>
-  );
+    <div className="App">
+      {props.isLoggedIn ? <Dashboard /> : <Auth />}
+      {routes}
+    </div>
+  )
 }
 
-export default App;
+const mapStateToProps = (reduxState) => reduxState
+
+export default connect(mapStateToProps)(App)

@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import {Link} from 'react-router-dom'
 import axios from 'axios'
 import {connect} from 'react-redux'
-import {updateReduxState} from '../../ducks/reducer'
+import {loginUser} from '../../ducks/reducer'
 
 class Auth extends Component {
     constructor(){
@@ -14,33 +13,47 @@ class Auth extends Component {
         }
     }
 
-    handleUpdateState = e => {
+    handleInput = e => {
         this.setState({
             [e.target.name]: e.target.value
         })
     }
 
-    handleRegisterUser = () => {
-        const {username, password} = this.state
-        axios.post('/api/auth/register', {username, password})
-        .then(res => {
-            const {id, username, profile_pic} = res.data
-            this.props.updateReduxState(id, username, profile_pic)
-            this.props.history.push('/dashboard')
-        })
-        .catch(err => console.log(err))
+    handleRegister = () => {
+    const body = {
+      username: this.state.username,
+      password: this.state.password,
     }
 
-    handleGetUser = () => {
-        const {username, password} = this.state
-        axios.post('/api/auth/login', {username, password})
-        .then(res => {
-            const {id, username, profile_pic} = res.data
-            this.props.updateReduxState(id, username, profile_pic)
-            this.props.history.push('/dashboard')
+    axios
+      .post('/auth/register', body)
+      .then((res) => {
+        this.props.loginUser(res.data)
+        this.props.history.push('/dashboard')
+      })
+      .catch((err) => {
+          console.log(err)
+          alert('Could not register')
         })
-        .cath(err => console.log(err))
-    }
+     }
+
+    handleLogin = () => {
+        const body = {
+          username: this.state.username,
+          password: this.state.password,
+        }
+    
+        axios
+          .post('/auth/login', body)
+          .then((res) => {
+            this.props.loginUser(res.data)
+            this.props.history.push('/dashboard')
+          })
+          .catch((err) => {
+            console.log(err)
+            alert('Could not log in')
+          })
+      }
 
     render() {
         return (
@@ -48,21 +61,18 @@ class Auth extends Component {
                 <input
                 placeholder='Username'
                 name='username'
-                onChange={e => this.handleUpdateState(e)} />
+                onChange={e => this.handleInput(e)} />
                 <input
                 placeholder='Password'
                 name='password'
-                onChange={e => this.handleUpdateState(e)} />
+                onChange={e => this.handleInput(e)} />
 
-                <button onClick={() => this.handleGetUser()}>Login</button>
-                <button onClick={() => this.handleRegisterUser()}>Register</button>
+                <button onClick={() => this.handleLogin()}>Login</button>
+                <button onClick={() => this.handleRegister()}>Register</button>
             </div>
         )
     }
 }
 
-const mapDispatchToProps = {
-    updateReduxState
-}
-
-export default connect(null, mapDispatchToProps)(Auth)
+const mapStateToProps = (reduxState) => reduxState
+export default connect(mapStateToProps, { loginUser })(Auth)

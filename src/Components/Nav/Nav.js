@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {Link, withRouter} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {updateReduxState} from '../../ducks/reducer'
+import {logoutUser} from '../../ducks/reducer'
 import axios from 'axios'
 
 class Nav extends Component {
@@ -35,7 +35,7 @@ class Nav extends Component {
 
     handleLogout = () => {
         axios.post('/api/auth/logout').then(res => {
-            this.props.updateReduxState(0, '', '')
+            this.props.logoutUser(0, '', '')
             this.props.history.push('/')
         })
         console.log(this.props)
@@ -68,4 +68,4 @@ const mapStateToProps = reduxState => {
     }
 }
 
-export default connect(mapStateToProps, {updateReduxState})(withRouter(Nav))
+export default connect(mapStateToProps, {logoutUser})(withRouter(Nav))

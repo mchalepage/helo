@@ -1,71 +1,62 @@
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 module.exports = {
-    register: async (req, res) => {
-        const { username, password } = req.body
-        const db = req.app.get('db')
+  login: async (req, res) => {
+    const db = req.app.get('db')
+    const { username, password } = req.body
 
-        let authorizedUser = await db.check_username(username)
-        authorizedUser = authorizedUser[0]
-        if(authorizedUser){
-            res.status(409).send('User already exists')
-        }
+    const existingUser = await db.get_user([username])
 
-        const salt = bcrypt.genSaltSync(10)
-        const hash = bcrypt.hashSync(password, salt)
-
-        let newUser = await db.register({ username, password: hash })
-        newUser = newUser[0]
-        res.status(200).send(newUser)
-    },
-    login: async (req, res) => {
-        const {username, password} = req.body
-        const db = req.app.get('db')
-
-        let authorizedUser = await db.get_user({username})
-        authorizedUser = authorizedUser[0]
-
-        if(!authorizedUser){
-            res.status(400).send('User does not exist')
-        }
-
-        const authenticated = bcrypt.compareSync(password, authorizedUser.password)
-
-        if(authenticated){
-            delete authorizedUser.password
-            req.session.user = authorizedUser
-            res.status(202).send(req.session.user)
-        } else {
-            res.status(401).send('Username or password is incorrect')
-        }
-
-        res.status(200).send(authorizedUser)
-    },
-    logout: (req, res) => {
-        req.session.destroy()
-        res.sendStatus(200)
-    },
-    getPosts: async (req, res) => {
-        const {userid} = req.params
-        const db = req.app.get('db')
-
-        let posts = await db.get_posts()
-
-        if (req.query.userposts === true && req.query.search){
-            posts = posts.filter(e => e.title === req.query.search)
-            return posts
-        }
-        if (req.query.userposts === false && !req.query.search){
-            posts = posts.filter(e => e.author_id !== userid)
-            return posts
-        }
-        if (req.query.userposts === false && req.query.search){
-            posts = posts.filter(e => e.title === req.query.search && e.author_id !== userid)
-            return posts
-        }
-        if (req.query.userposts === true && !req.query.search){
-            return posts
-        }
-        res.status(200).send(posts)
+    if (!existingUser[0]) {
+      return res.status(404).send('User does not exist')
     }
+
+    const authenticated = bcrypt.compareSync(password, existingUser[0].password)
+
+    if (authenticated) {
+      delete existingUser[0].password
+
+      req.session.user = existingUser[0]
+
+      res.status(200).send(req.session.user)
+    } else {
+      res.status(403).send('Username or password is incorrect')
+    }
+  },
+  register: async (req, res) => {
+    const db = req.app.get('db')
+    const { username, password } = req.body
+
+    const existingUser = await db.get_user([username])
+
+    if (existingUser[0]) {
+      return res.status(409).send('Username already exists')
+    }
+
+    const salt = bcrypt.genSaltSync(10)
+    const hash = bcrypt.hashSync(password, salt)
+
+    const newUser = await db.register([username, hash])
+
+    req.session.user = newUser[0]
+
+    res.status(200).send(req.session.user)
+  },
+  logout: (req, res) => {
+    req.session.destroy()
+    res.sendStatus(200)
+  },
+  getUser: (req, res) => {
+    if (req.session.user) {
+      res.status(200).send(req.session.user)
+    } else {
+      res.sendStatus(404)
+    }
+  },
+  getPosts: async (req, res) => {
+    const db = req.app.get('db')
+    const posts = await db.get_posts()
+
+    res.status(200).send(posts)
+  }
 }
